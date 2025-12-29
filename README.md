@@ -4,9 +4,11 @@ This is the main microservice that implements the game interface
 
 ## Database
 
+The bolded columns are primary keys 
+
 Game table:
 
-- gameId
+- **gameId**
 - maxScore
 - playerN
 - playerW
@@ -18,65 +20,65 @@ Game table:
 - scoreE
 - status
 - state
-- handNum
+- currentHand
 
 Hand table:
-- gameId
-- handNum
+- **gameId** (foreign key to game table)
+- **handNum**
 - scoreN
 - scoreW
 - scoreS
 - scoreE
 - state
+- trumpSuit
 - bidN
 - bidW
 - bidS
 - bidE
-- handN
-- handW
-- handE
-- handS
-- trickN
-- trickW
-- trickS
-- trickE
-- playNum
+- handN (list of cards - array of 13)
+- handW (list of cards - array of 13)
+- handS (list of cards - array of 13)
+- handE (list of cards - array of 13)
+- currentTrick
 
 Trick table
-- gameId
-- handNum
-- playNum
+- **gameId** (foreign key to game table)
+- **handNum** (foreign key to hand table)
+- **playNum**
 - cardN
 - cardW
 - cardE
 - cardS
-- winner 
 
 ## REST api
 
-GET /game
+`GET /game` - list games
 
-POST /game/{id} - set new game with 4 players and max score
+`GET /game?state=active` list active games (state is start, active, done)
 
-GET /game/{id}
+`POST /game` - create new game with 4 players and max score; state = start, currentHand = 0 - returns game object
 
-GET /game/{id}/hands
+`GET /game/{id}` - retrieve existing game info
 
-GET /hand/{gameId}/{handNum}
+`GET /game/{id}/hands` - list all available hands for the game
 
-GET /hand/{gameId}/{handNum}/trick
+`POST /hand/{gameId}` - initiate new Hand and adds count to currentHand - state = 'bid' - return hand information - deals 
 
-GET /trick/{gameId}/{handNum}/{trickNum}
+`GET /hand/{gameId}/{handNum}` - get specific hand information
 
-POST /hand/{gameId}/{handNum} - create new hand (deal cards)
+`GET /hand/{gameId}/{handNum}?hand=N|S|E|W` - specific hand for a specific player
 
-POST /hand/{gameId}/{handNum}/bid/{playerId} - submit bid
+`GET /hand/{gameId}/{handNum}/trick` - lists the trick for the hand
 
-POST /trick/{gameId}/{handNum}/{trickNum}/play/{playerId} - submit card
+`POST /hand/{gameId}/{handNum}/bid/{playerId}` - submit bid - checks other player - finalize the bid if all bids are received - set trumpSuit - reset state to play
 
-POST /hand/{gameId}/{handNum}/finish - complete hand - recalculate score
+`POST /hand/{gameId}/{handNum}/{trickNum}/play/{playerId}` - submit card only for state = play
 
-POST /game/{gameId}/finish - complete game - recalculate rank for players
+`POST /hand/{gameId}/{handNum}/finish` - complete hand - recalculate score - roll up to the game level
+
+`GET /trick/{gameId}/{handNum}/{trickNum}` get specific trick information
+
+`POST /game/{gameId}/finish` - complete game - recalculate rank for players
 
 
 
