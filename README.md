@@ -57,9 +57,9 @@ Trick table
 
 `POST /game` - create new game with 4 players and max score; state = start, currentHand = 0 - returns game object
 
-`GET /game/{id}` - retrieve existing game info
+`GET /game/{gameId}` - retrieve existing game info
 
-`GET /game/{id}/hands` - list all available hands for the game
+`GET /game/{gameId}/hands` - list all available hands for the game
 
 `POST /hand/{gameId}` - initiate new Hand and adds count to currentHand - state = 'bid' - return hand information - deals 
 
