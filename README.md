@@ -53,13 +53,15 @@ Trick table
 
 `GET /game` - list games
 
-`GET /game?state=active` list active games (state is start, active, done)
+`GET /game?state=inprogress` list active games (status is inprogress and complete)
 
-`POST /game` - create new game with 4 players and max score; state = start, currentHand = 0 - returns game object
+`POST /game` - create new game with 4 players and max score; status = start, currentHand = 0 - returns game object
 
 `GET /game/{gameId}` - retrieve existing game info
 
 `GET /game/{gameId}/hands` - list all available hands for the game
+
+`DELETE /game/{gameId}` - deletes a game from the database (for testing)
 
 `POST /hand/{gameId}` - initiate new Hand and adds count to currentHand - state = 'bid' - return hand information - deals 
 
@@ -77,7 +79,7 @@ Trick table
 
 `GET /trick/{gameId}/{handNum}/{trickNum}` get specific trick information
 
-`POST /game/{gameId}/finish` - complete game - recalculate rank for players
+`POST /game/{gameId}` - complete game - recalculate rank for players
 
 
 
