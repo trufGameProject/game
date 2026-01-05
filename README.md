@@ -19,7 +19,6 @@ Game table:
 - scoreS
 - scoreE
 - status
-- state
 - currentHand
 
 Hand table:
