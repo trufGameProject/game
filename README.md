@@ -73,7 +73,7 @@ Trick table
 
 `POST /hand/{gameId}/{handNum}/bid/{playerId}` - submit bid - checks other player - finalize the bid if all bids are received - set trumpSuit - reset state to play
 
-`POST /hand/{gameId}/{handNum}/{trickNum}/play/{playerId}` - submit card only for state = play
+`POST /trick/{gameId}/{handNum}/{trickNum}/{playerId}` - submit card only for state = play
 
 `POST /hand/{gameId}/{handNum}/finish` - complete hand - recalculate score - roll up to the game level
 

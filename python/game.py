@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 from flask_restful import Resource, Api, reqparse, fields, marshal_with, abort
 
 app = Flask(__name__)
@@ -10,10 +9,6 @@ api = Api(app)
 # DATABASE_URI = "postgresql+psycopg2://postgres:abc@127.0.0.1:5432/postgres" old: 'sqlite:///database.db'
 
 
-# GET /game
-# POST /game/{id} - set new game with 4 players and max score
-# GET /game/{id}
-# GET /game/{id}/hands
 # GET /hand/{gameId}/{handNum}
 # GET /hand/{gameId}/{handNum}/trick
 # GET /trick/{gameId}/{handNum}/{trickNum}
@@ -129,7 +124,7 @@ game_args.add_argument('gameId', type=str, required=True, help="Game ID cannot b
 hand_args = reqparse.RequestParser()
 
 trick_args = reqparse.RequestParser()
-
+trick_args.add_argument('cardPlayed', type=str)
 
 # implement api commands
 
@@ -172,8 +167,51 @@ class Game(Resource):
         games = GameModel.query.all()
         return games, 204
 
+class Hand(Resource):
+    @marshal_with(handFields)
+    def post(self, gameId):
+        args = hand_args.parse_args()
+        game = GameModel.query.filter_by(gameId=gameId).first()
+        game.currentHand = game.currentHand + 1
+        hands = HandModel(gameId=args['gameId'])
+        db.session.add(hands)
+        db.session.commit()
+        return hands, 201
+
+class Trick(Resource):
+    @marshal_with(trickFields)
+    def get(self, gameId, handNum, trickNum):
+        trick = TrickModel.query.filter_by(gameId=gameId, handNum=handNum, trickNum=trickNum).first()
+        return trick, 201
+    
+    @marshal_with(trickFields)
+    def post(self, gameId, handNum, trickNum, playerId):
+        args = trick_args.parse_args()
+        game = GameModel.query.filter_by(gameId=gameId).first()
+        hand = HandModel.query.filter_by(gameId=gameId, handNum=handNum).first()
+        trick = TrickModel.query.filter_by(gameId=gameId, handNum=handNum, trickNum=trickNum).first()
+        if playerId == game.playerN:
+            if args['cardPlayed'] not in hand.handN:
+                abort(404, "Card not found")
+            trick.cardN = args['cardPlayed']
+        if playerId == game.playerS:
+            if args['cardPlayed'] not in hand.handN:
+                abort(404, "Card not found")
+            trick.cardS = args['cardPlayed']
+        if playerId == game.playerE:
+            if args['cardPlayed'] not in hand.handN:
+                abort(404, "Card not found")
+            trick.cardE = args['cardPlayed']
+        if playerId == game.playerW:
+            if args['cardPlayed'] not in hand.handN:
+                abort(404, "Card not found")
+            trick.cardW = args['cardPlayed']
+        db.session.commit()
+        return trick, 201
 
 api.add_resource(Game, "/game/<string:gameId>", "/game/<string:gameId>/<string:status>/<string:hands>")
+api.add_resource(Hand, "/hand")
+api.add_resource(Trick, "/trick/<string:gameId>/<string:handNum>/<string:trickNum>", "/trick/<string:gameId>/<string:handNum>/<string:trickNum>/<string:playerId>")
 
 @app.route("/")
 def home():
