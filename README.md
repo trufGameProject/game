@@ -71,7 +71,7 @@ Trick table
 
 `GET /hand/{gameId}/{handNum}/trick` - lists the trick for the hand
 
-`POST /hand/{gameId}/{handNum}/bid/{playerId}` - submit bid - checks other player - finalize the bid if all bids are received - set trumpSuit - reset state to play
+`POST /hand/{gameId}/{handNum}/{playerId}` - submit bid - checks other player - finalize the bid if all bids are received - set trumpSuit - reset state to play
 
 `POST /trick/{gameId}/{handNum}/{trickNum}/{playerId}` - submit card only for state = play
 

@@ -122,6 +122,7 @@ game_args = reqparse.RequestParser()
 game_args.add_argument('gameId', type=str, required=True, help="Game ID cannot be blank")
 
 hand_args = reqparse.RequestParser()
+hand_args.add_argument('cardPlayed', type=str)
 
 trick_args = reqparse.RequestParser()
 trick_args.add_argument('cardPlayed', type=str)
@@ -168,15 +169,37 @@ class Game(Resource):
         return games, 204
 
 class Hand(Resource):
+
     @marshal_with(handFields)
-    def post(self, gameId):
+    def get(self, gameId, handNum, player, trick):
+        hand = HandModel.query.filter_by(gameId=gameId, handNum=handNum)
+        if player == "null" and trick == "0":
+            return hand, 201
+        if trick == "0":
+            if player=="N":
+                return hand.handN
+            if player=="S":
+                return hand.handS
+            if player=="E":
+                return hand.handE
+            if player=="W":
+                return hand.handW
+            return
+        tricks = TrickModel.query.filter_by(gameId=gameId, handNum=handNum).all()
+        return tricks, 201
+
+    @marshal_with(handFields)
+    def post(self, gameId, handNum, player, finished):
         args = hand_args.parse_args()
-        game = GameModel.query.filter_by(gameId=gameId).first()
-        game.currentHand = game.currentHand + 1
-        hands = HandModel(gameId=args['gameId'])
-        db.session.add(hands)
-        db.session.commit()
-        return hands, 201
+        if handNum=="null":
+            game = GameModel.query.filter_by(gameId=gameId).first()
+            game.currentHand = game.currentHand + 1
+            hands = HandModel(gameId=gameId)
+            db.session.add(hands)
+            db.session.commit()
+            return hands, 201
+        
+        return
 
 class Trick(Resource):
     @marshal_with(trickFields)
@@ -210,7 +233,7 @@ class Trick(Resource):
         return trick, 201
 
 api.add_resource(Game, "/game/<string:gameId>", "/game/<string:gameId>/<string:status>/<string:hands>")
-api.add_resource(Hand, "/hand")
+api.add_resource(Hand, "/hand/<string:gameId>/<string:handNum>/<string:player>/<string:trick>","/hand/<string:gameId>/<string:handNum>/<string:player>/<string:finished>")
 api.add_resource(Trick, "/trick/<string:gameId>/<string:handNum>/<string:trickNum>", "/trick/<string:gameId>/<string:handNum>/<string:trickNum>/<string:playerId>")
 
 @app.route("/")
