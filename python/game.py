@@ -198,7 +198,24 @@ class Hand(Resource):
             db.session.add(hands)
             db.session.commit()
             return hands, 201
-        
+        if finished == "0":
+            game = GameModel.query.filter_by(gameId=gameId)
+            hand = HandModel.query.filter_by(gameId=gameId, handNum=handNum)
+            if player=="N":
+                hand.bidN = args['cardPlayed']
+            if player=="S":
+                hand.bidS = args['cardPlayed']
+            if player=="E":
+                hand.bidE = args['cardPlayed']
+            if player=="W":
+                hand.bidW = args['cardPlayed']
+            if hand.bidN != "" and hand.bidS != "" and hand.bidE != "" and hand.bidW != "":
+                hand.state = "play"
+                #implement trump suit determination
+                trumpSuit = ""
+                hand.trumpSuit = trumpSuit
+            return
+        #implement score recalculation
         return
 
 class Trick(Resource):
